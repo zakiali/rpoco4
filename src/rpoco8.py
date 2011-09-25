@@ -8,11 +8,11 @@ BASE_RX_ID = 0x8000
 BASE_TX_ID = 0x9000
 TIMESTAMP_ID = 0x7000
 NCHAN = 1024
-NANT = 8
+NANT = 4
 SW_REG_LEN = 4
 EQ_ADDR_RANGE = 2**6
 TMP_FILE = 'uv.tmp'
-ANTS = 'abcdefgh'
+ANTS = 'abcd'
 BLS = [ai+aj for i,ai in enumerate(ANTS) for aj in ANTS[i:]]
 
 UV_VAR_TYPES = {
@@ -27,23 +27,35 @@ UV_VAR_TYPES = {
 }
 
 FPGA_RX_RESOURCES = {
-    BASE_RX_ID+0: ('ctrl_sw', S.DEFAULT_FMT),
-    BASE_RX_ID+1: ('acc_length', S.DEFAULT_FMT),
-    BASE_RX_ID+2: ('eq_coeff', S.mkfmt(('u',2),('u',10),('u',3),('u',17))),
-    BASE_RX_ID+3: ('Sync_sync_sel', S.DEFAULT_FMT),
-    BASE_RX_ID+4: ('Sync_sync_pulse', S.DEFAULT_FMT)
+    BASE_RX_ID+0: ('ctrl', S.DEFAULT_FMT),
+    BASE_RX_ID+1: ('acc_len', S.DEFAULT_FMT),
+    BASE_RX_ID+1: ('fft_shift', S.DEFAULT_FMT),
+    BASE_RX_ID+2: ('quant0_gain', S.mkfmt(S.DEFAULT_FMT),
+    BASE_RX_ID+2: ('quant1_gain', S.mkfmt(S.DEFAULT_FMT),
+    BASE_RX_ID+2: ('quant2_gain', S.mkfmt(S.DEFAULT_FMT),
+    BASE_RX_ID+2: ('quant3_gain', S.mkfmt(S.DEFAULT_FMT),
+    BASE_RX_ID+2: ('quant0_addr', S.mkfmt(S.DEFAULT_FMT),
+    BASE_RX_ID+2: ('quant1_addr', S.mkfmt(S.DEFAULT_FMT),
+    BASE_RX_ID+2: ('quant2_addr', S.mkfmt(S.DEFAULT_FMT),
+    BASE_RX_ID+2: ('quant3_addr', S.mkfmt(S.DEFAULT_FMT)
  # 0-16 coeff, 17 coeff_en, 20-25 coeff_addr, 30-31 ant_select
 }
 
 FPGA_TX_RESOURCES = { BASE_TX_ID+0: ('acc_num','acc_num', S.DEFAULT_FMT, []) }
 _cnt = 1
 for b in ['aa','bb','cc','dd']:
-    FPGA_TX_RESOURCES[BASE_TX_ID+_cnt] = ('xengine8_muxed_%s_real' % b, '%s_r'%b, S.mkfmt(('i',32)), [2*NCHAN])
+    FPGA_TX_RESOURCES[BASE_TX_ID+_cnt] = ('dirx0_%s_real' % b, '%s_r'%b, S.mkfmt(('i',32)), [NCHAN/2])
     _cnt += 1
-for b in ['ab','ac','ad','ae','af','bc','bd','be','bf','cd','cg','ch','dg','dh']:
-    FPGA_TX_RESOURCES[BASE_TX_ID+_cnt] = ('xengine8_muxed_%s_real' % b, '%s_r'%b, S.mkfmt(('i',32)), [2*NCHAN])
+    FPGA_TX_RESOURCES[BASE_TX_ID+_cnt] = ('dirx1_%s_real' % b, '%s_r'%b, S.mkfmt(('i',32)), [NCHAN/2])
     _cnt += 1
-    FPGA_TX_RESOURCES[BASE_TX_ID+_cnt] = ('xengine8_muxed_%s_imag' % b, '%s_i'%b, S.mkfmt(('i',32)), [2*NCHAN])
+for b in ['ab','ac','ad','bc','bd','cd']:
+    FPGA_TX_RESOURCES[BASE_TX_ID+_cnt] = ('dirx0_%s_real' % b, '%s_r'%b, S.mkfmt(('i',32)), [NCHAN/2])
+    _cnt += 1
+    FPGA_TX_RESOURCES[BASE_TX_ID+_cnt] = ('dirx1_%s_real' % b, '%s_r'%b, S.mkfmt(('i',32)), [NCHAN/2])
+    _cnt += 1
+    FPGA_TX_RESOURCES[BASE_TX_ID+_cnt] = ('dirx0_%s_imag' % b, '%s_i'%b, S.mkfmt(('i',32)), [NCHAN/2])
+    _cnt += 1
+    FPGA_TX_RESOURCES[BASE_TX_ID+_cnt] = ('dirx1_%s_imag' % b, '%s_i'%b, S.mkfmt(('i',32)), [NCHAN/2])
     _cnt += 1
 
 def start_bof(boffile=BOFFILE):
@@ -145,17 +157,28 @@ class BorphSpeadServer(S.ItemGroup):
         return
 
 class SimSpeadServer(BorphSpeadServer):
-    def __init__(self, dir='/tmp/', fpga_rx_resources=FPGA_RX_RESOURCES, fpga_tx_resources=FPGA_TX_RESOURCES):
+    def __init__(self, dir='tmp/', fpga_rx_resources=FPGA_RX_RESOURCES, fpga_tx_resources=FPGA_TX_RESOURCES):
+        os.mkdir('tmp')
+        pd = os.getcwd()
+        self.dir = pd + dir
         for id,(filename,name,fmt,shape) in fpga_tx_resources.iteritems():
             filename = self.dir + filename
             logger.debug('SimSpeadServer: Creating file %s' % (filename))
             f = open(filename, 'w')
             if name == 'acc_num':
-                f.write('\x00\x00\x00\x00')
+                f.write(N.arange(10000).data)
                 f.close()
-            else: self.brams[id] = open(filename)
-    
-
+            else: 
+                d = N.random.random_integer(1, 10000, size = 2048)
+                f.write(d.data)
+                f.close() 
+        self.brams = {}
+        for id,(filename,name,fmt,shape) in fpga_tx_resources.iteritems():
+            filename = self.dir + filenam
+            if name == 'acc_num': self.acc_num = open(filename, 'r')    
+            else: self.brams[id] = open(filename, 'r')
+        self.tx_heaps = {}
+     
 class BorphSpeadClient(S.ItemGroup):
     def __init__(self, client_ip, tx, fpga_rx_resources=FPGA_RX_RESOURCES,
             fft_shift=0x155, acc_length=0x8000000, eq_coeff=1500, sync_sel=1):
@@ -172,27 +195,35 @@ class BorphSpeadClient(S.ItemGroup):
         self.Sync_sync_sel(sync_sel)
     def set_fft_shift(self, fft_shift):
         logger.info('BorphSpeadClient.set_fft_shift: fft_shift=%x' % (fft_shift))
-        self['ctrl_sw'] = fft_shift 
+        self['fft_shift'] = fft_shift 
     def acc_length(self, acc_length):
         logger.info('BorphSpeadClient.acc_length: acc_length=%x' % (acc_length))
-        self['acc_length'] = acc_length
+        self['acc_len'] = acc_length
     def set_eq_coeff(self, eq_coeff):
+        
     #    "0-16 coeff, 17 coeff-en, 20-25 coeff-addr, 30-31 ant-pair-sel"
         logger.info('BorphSpeadClient.set_eq_coeff: eq_coeff=%d' % (eq_coeff))
-        for ant_sel in range(NANT/2):
-            for addr in range(EQ_ADDR_RANGE):
-                logger.debug('BorphSpeadClient.set_eq_coeff: ant_sel=%d, addr=%d, eq_coeff=%d' % (ant_sel, addr, eq_coeff))
-                self['eq_coeff'] = (ant_sel, addr, 1, eq_coeff)
+        self['quant0_gain'] = eq_coeff
+        self['quant1_gain'] = eq_coeff
+        self['quant2_gain'] = eq_coeff
+        self['quant3_gain'] = eq_coeff
+        
+        for chan in range(NCHAN):
+            for ant in range(NANT):
+                self['quant%i_addr'%ant] = chan
                 self.send()
+    
     def Sync_sync_sel(self, sync_sel):
-        logger.info('BorphSpeadClient.sync_sel: sync_sel=%d' % (sync_sel))
-        self['Sync_sync_sel'] = sync_sel
+        logger.info('BorphSpeadClient.set_sync:Sending sync trigger')
+        self['ctrl'] = 1<<17
         self.send()
-        if sync_sel == 1: 
-            for i in range(2):     
-                self['Sync_sync_pulse'] = i
-                logger.info('BorphSpeadClient.sync_pulse: Sending sync pulse %d' %i)
-                self.send()  
+        self['ctrl'] = 1<<18
+        self.send()
+        self['ctrl'] = 0
+        self.send()
+        self['ctrl'] = 1<<18
+        self.send()
+
         def send(self):
         logger.info('BorphSpeadClient.send: Sending a heap')
         heap = self.get_heap()
