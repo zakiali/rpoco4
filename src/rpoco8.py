@@ -44,18 +44,18 @@ FPGA_RX_RESOURCES = {
 FPGA_TX_RESOURCES = { BASE_TX_ID+0: ('acc_num','acc_num', S.DEFAULT_FMT, []) }
 _cnt = 1
 for b in ['aa','bb','cc','dd']:
-    FPGA_TX_RESOURCES[BASE_TX_ID+_cnt] = ('dirx0_%s_real' % b, '%s_r'%b, S.mkfmt(('i',32)), [NCHAN/2])
+    FPGA_TX_RESOURCES[BASE_TX_ID+_cnt] = ('dirx0_%s_real' % b, '%s_er'%b, S.mkfmt(('i',32)), [NCHAN/2])
     _cnt += 1
-    FPGA_TX_RESOURCES[BASE_TX_ID+_cnt] = ('dirx1_%s_real' % b, '%s_r'%b, S.mkfmt(('i',32)), [NCHAN/2])
+    FPGA_TX_RESOURCES[BASE_TX_ID+_cnt] = ('dirx1_%s_real' % b, '%s_or'%b, S.mkfmt(('i',32)), [NCHAN/2])
     _cnt += 1
 for b in ['ab','ac','ad','bc','bd','cd']:
-    FPGA_TX_RESOURCES[BASE_TX_ID+_cnt] = ('dirx0_%s_real' % b, '%s_r'%b, S.mkfmt(('i',32)), [NCHAN/2])
+    FPGA_TX_RESOURCES[BASE_TX_ID+_cnt] = ('dirx0_%s_real' % b, '%s_er'%b, S.mkfmt(('i',32)), [NCHAN/2])
     _cnt += 1
-    FPGA_TX_RESOURCES[BASE_TX_ID+_cnt] = ('dirx1_%s_real' % b, '%s_r'%b, S.mkfmt(('i',32)), [NCHAN/2])
+    FPGA_TX_RESOURCES[BASE_TX_ID+_cnt] = ('dirx1_%s_real' % b, '%s_or'%b, S.mkfmt(('i',32)), [NCHAN/2])
     _cnt += 1
-    FPGA_TX_RESOURCES[BASE_TX_ID+_cnt] = ('dirx0_%s_imag' % b, '%s_i'%b, S.mkfmt(('i',32)), [NCHAN/2])
+    FPGA_TX_RESOURCES[BASE_TX_ID+_cnt] = ('dirx0_%s_imag' % b, '%s_ei'%b, S.mkfmt(('i',32)), [NCHAN/2])
     _cnt += 1
-    FPGA_TX_RESOURCES[BASE_TX_ID+_cnt] = ('dirx1_%s_imag' % b, '%s_i'%b, S.mkfmt(('i',32)), [NCHAN/2])
+    FPGA_TX_RESOURCES[BASE_TX_ID+_cnt] = ('dirx1_%s_imag' % b, '%s_oi'%b, S.mkfmt(('i',32)), [NCHAN/2])
     _cnt += 1
 
 def start_bof(boffile=BOFFILE):
