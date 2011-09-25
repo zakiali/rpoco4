@@ -10,8 +10,8 @@ logging.getLogger('spead').setLevel(logging.WARN)
 import my_cal
    
 NCHAN = 1024
-NANT = 8
-letters = 'abcdefgh'
+NANT = 4
+letters = 'abcd'
 colors = ['black','red','blue','green','cyan','magenta','yellow','gray']
 
 o = optparse.OptionParser()
@@ -21,7 +21,7 @@ o.add_option('-p','--port', dest='port', type='int', help='UDP port to listen to
 opts,args = o.parse_args(sys.argv[1:])   
 
 #Set up reciever and item group.The arr variable is so that spead knows to unpack numpy arrays(added when new item group is added, instead of fmt and shape, add narray=arr). This makes unpacking faster, whenever we need it.  
-arr = N.zeros(NCHAN*2)
+arr = N.zeros(NCHAN)
 arr = N.array(arr, dtype=N.int32) 
 
 rx = S.TransportUDPrx(opts.port, pkt_count=4096)
@@ -122,25 +122,16 @@ class DataRecorder(S.ItemGroup):
             jd = self.unix2julian(sec)
             logger.info('RPOCO8-RX.rx_thread: Got HEAP_CNT=%d' % (ig.heap_cnt))
             #continue
-            data = N.zeros(shape = 1024, dtype = N.complex64)
+            #data = N.zeros(shape = 1024, dtype = N.complex64)
             for name in self.now:
                 data = N.zeros(shape = 1024, dtype = N.complex64)
                 if name[0] == name[1]:
-                    R = ig[name+'_r'].reshape([NCHAN,2])
-                    data.real = R[:,0]
+                    data.real = N.dstack((ig[name+'_er'],ig[name+'_or'])).flatten()
                     self.uv_update(name,data,jd)
-                    data.real = R[:,1]
-                    self.uv_update(self.then[self.now.index(name)],data,jd)
                 else:
-                    R = ig[name+'_r'].reshape([NCHAN,2])
-                    I = ig[name+'_i'].reshape([NCHAN,2])
-                    data.real = R[:,0]
-                    data.imag = I[:,0]
+                    data.real = N.dstack((ig[name+'_er'],ig[name+'_or'])).flatten()
+                    data.imag = N.dstack((ig[name+'_ei'],ig[name+'_oi'])).flatten()
                     self.uv_update(name,data,jd) 
-                    data.real = R[:,1]
-                    data.imag = I[:,1]
-                    if name in ['ae','af','be','bf','cg','ch','dg','dh']:self.uv_update(self.then[self.now.index(name)], N.conj(data),jd)
-                    else:self.uv_update(self.then[self.now.index(name)], data,jd)
             c += 1
             if c%300 == 0:
                 filename = 'poco.' + str((time.time()/86400.0)+2440587.5) + '.uv'
