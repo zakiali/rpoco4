@@ -58,7 +58,7 @@ class DataRecorder(S.ItemGroup):
         self.aa = aa
         now = [
                'aa', 'ab', 'ac', 'ad', 'bb', 'bc', 'bd', 'cc', 'cd',
-               'dd', 'ae', 'af', 'be', 'bf', 'cg', 'ch', 'dg', 'dh'
+               'dd']
               ]
         then = [
                 'ee', 'ef', 'eg', 'eh', 'ff', 'fg', 'fh', 'gg', 'gh',
