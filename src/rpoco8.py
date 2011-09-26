@@ -30,14 +30,14 @@ FPGA_RX_RESOURCES = {
     BASE_RX_ID+0: ('ctrl', S.DEFAULT_FMT),
     BASE_RX_ID+1: ('acc_len', S.DEFAULT_FMT),
     BASE_RX_ID+2: ('fft_shift', S.DEFAULT_FMT),
-    BASE_RX_ID+3: ('quant0_gain', S.mkfmt(S.DEFAULT_FMT)),
-    BASE_RX_ID+4: ('quant1_gain', S.mkfmt(S.DEFAULT_FMT)),
-    BASE_RX_ID+5: ('quant2_gain', S.mkfmt(S.DEFAULT_FMT)),
-    BASE_RX_ID+6: ('quant3_gain', S.mkfmt(S.DEFAULT_FMT)),
-    BASE_RX_ID+7: ('quant0_addr', S.mkfmt(S.DEFAULT_FMT)),
-    BASE_RX_ID+8: ('quant1_addr', S.mkfmt(S.DEFAULT_FMT)),
-    BASE_RX_ID+9: ('quant2_addr', S.mkfmt(S.DEFAULT_FMT)),
-    BASE_RX_ID+10: ('quant3_addr', S.mkfmt(S.DEFAULT_FMT))
+    BASE_RX_ID+3: ('quant0_gain', S.DEFAULT_FMT),
+    BASE_RX_ID+4: ('quant1_gain', S.DEFAULT_FMT),
+    BASE_RX_ID+5: ('quant2_gain', S.DEFAULT_FMT),
+    BASE_RX_ID+6: ('quant3_gain', S.DEFAULT_FMT),
+    BASE_RX_ID+7: ('quant0_addr', S.DEFAULT_FMT),
+    BASE_RX_ID+8: ('quant1_addr', S.DEFAULT_FMT),
+    BASE_RX_ID+9: ('quant2_addr', S.DEFAULT_FMT),
+    BASE_RX_ID+10: ('quant3_addr',S.DEFAULT_FMT)
  # 0-16 coeff, 17 coeff_en, 20-25 coeff_addr, 30-31 ant_select
 }
 
