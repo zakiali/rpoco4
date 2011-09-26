@@ -30,14 +30,14 @@ FPGA_RX_RESOURCES = {
     BASE_RX_ID+0: ('ctrl', S.DEFAULT_FMT),
     BASE_RX_ID+1: ('acc_len', S.DEFAULT_FMT),
     BASE_RX_ID+2: ('fft_shift', S.DEFAULT_FMT),
-    BASE_RX_ID+3: ('quant0_gain', S.mkfmt(S.DEFAULT_FMT),
-    BASE_RX_ID+4: ('quant1_gain', S.mkfmt(S.DEFAULT_FMT),
-    BASE_RX_ID+5: ('quant2_gain', S.mkfmt(S.DEFAULT_FMT),
-    BASE_RX_ID+6: ('quant3_gain', S.mkfmt(S.DEFAULT_FMT),
-    BASE_RX_ID+7: ('quant0_addr', S.mkfmt(S.DEFAULT_FMT),
-    BASE_RX_ID+8: ('quant1_addr', S.mkfmt(S.DEFAULT_FMT),
-    BASE_RX_ID+9: ('quant2_addr', S.mkfmt(S.DEFAULT_FMT),
-    BASE_RX_ID+10: ('quant3_addr', S.mkfmt(S.DEFAULT_FMT)
+    BASE_RX_ID+3: ('quant0_gain', S.mkfmt(S.DEFAULT_FMT)),
+    BASE_RX_ID+4: ('quant1_gain', S.mkfmt(S.DEFAULT_FMT)),
+    BASE_RX_ID+5: ('quant2_gain', S.mkfmt(S.DEFAULT_FMT)),
+    BASE_RX_ID+6: ('quant3_gain', S.mkfmt(S.DEFAULT_FMT)),
+    BASE_RX_ID+7: ('quant0_addr', S.mkfmt(S.DEFAULT_FMT)),
+    BASE_RX_ID+8: ('quant1_addr', S.mkfmt(S.DEFAULT_FMT)),
+    BASE_RX_ID+9: ('quant2_addr', S.mkfmt(S.DEFAULT_FMT)),
+    BASE_RX_ID+10: ('quant3_addr', S.mkfmt(S.DEFAULT_FMT))
  # 0-16 coeff, 17 coeff_en, 20-25 coeff_addr, 30-31 ant_select
 }
 
@@ -225,12 +225,12 @@ class BorphSpeadClient(S.ItemGroup):
         self.send()
 
         def send(self):
-        logger.info('BorphSpeadClient.send: Sending a heap')
-        heap = self.get_heap()
-        #for id, val in heap.iteritems():
-        #    logger.debug('BorphSpeadClient.send: id=%d len(val)=%d' % (id, len(val[1])))
-        #    #logger.debug('BorphSpeadClient.send: id=%d val=%s' % (id, [val]))
-        self.tx.send_heap(heap)
+            logger.info('BorphSpeadClient.send: Sending a heap')
+            heap = self.get_heap()
+            #for id, val in heap.iteritems():
+            #    logger.debug('BorphSpeadClient.send: id=%d len(val)=%d' % (id, len(val[1])))
+            #    #logger.debug('BorphSpeadClient.send: id=%d val=%s' % (id, [val]))
+            self.tx.send_heap(heap)
 
 A = None
 try: import aipy as A
