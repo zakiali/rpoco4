@@ -44,18 +44,18 @@ FPGA_RX_RESOURCES = {
 FPGA_TX_RESOURCES = { BASE_TX_ID+0: ('acc_num','acc_num', S.DEFAULT_FMT, []) }
 _cnt = 1
 for b in ['aa','bb','cc','dd']:
-    FPGA_TX_RESOURCES[BASE_TX_ID+_cnt] = ('dirx0_%s_real' % b, '%s_er'%b, S.mkfmt(('i',32)), [NCHAN/2])
+    FPGA_TX_RESOURCES[BASE_TX_ID+_cnt] = ('dir_x0_%s_real' % b, '%s_er'%b, S.mkfmt(('i',32)), [NCHAN/2])
     _cnt += 1
-    FPGA_TX_RESOURCES[BASE_TX_ID+_cnt] = ('dirx1_%s_real' % b, '%s_or'%b, S.mkfmt(('i',32)), [NCHAN/2])
+    FPGA_TX_RESOURCES[BASE_TX_ID+_cnt] = ('dir_x1_%s_real' % b, '%s_or'%b, S.mkfmt(('i',32)), [NCHAN/2])
     _cnt += 1
 for b in ['ab','ac','ad','bc','bd','cd']:
-    FPGA_TX_RESOURCES[BASE_TX_ID+_cnt] = ('dirx0_%s_real' % b, '%s_er'%b, S.mkfmt(('i',32)), [NCHAN/2])
+    FPGA_TX_RESOURCES[BASE_TX_ID+_cnt] = ('dir_x0_%s_real' % b, '%s_er'%b, S.mkfmt(('i',32)), [NCHAN/2])
     _cnt += 1
-    FPGA_TX_RESOURCES[BASE_TX_ID+_cnt] = ('dirx1_%s_real' % b, '%s_or'%b, S.mkfmt(('i',32)), [NCHAN/2])
+    FPGA_TX_RESOURCES[BASE_TX_ID+_cnt] = ('dir_x1_%s_real' % b, '%s_or'%b, S.mkfmt(('i',32)), [NCHAN/2])
     _cnt += 1
-    FPGA_TX_RESOURCES[BASE_TX_ID+_cnt] = ('dirx0_%s_imag' % b, '%s_ei'%b, S.mkfmt(('i',32)), [NCHAN/2])
+    FPGA_TX_RESOURCES[BASE_TX_ID+_cnt] = ('dir_x0_%s_imag' % b, '%s_ei'%b, S.mkfmt(('i',32)), [NCHAN/2])
     _cnt += 1
-    FPGA_TX_RESOURCES[BASE_TX_ID+_cnt] = ('dirx1_%s_imag' % b, '%s_oi'%b, S.mkfmt(('i',32)), [NCHAN/2])
+    FPGA_TX_RESOURCES[BASE_TX_ID+_cnt] = ('dir_x1_%s_imag' % b, '%s_oi'%b, S.mkfmt(('i',32)), [NCHAN/2])
     _cnt += 1
 
 def start_bof(boffile=BOFFILE):
@@ -189,6 +189,7 @@ class BorphSpeadClient(S.ItemGroup):
             name, fmt = fpga_rx_resources[id]
             self.add_item(name, id=id, fmt=fmt, shape=[])
         self.set_fft_shift(fft_shift)
+        self.send()
         self.acc_length(acc_length)
         self.set_eq_coeff(eq_coeff)
         self.send()
@@ -224,13 +225,13 @@ class BorphSpeadClient(S.ItemGroup):
         self['ctrl'] = 1<<18
         self.send()
 
-        def send(self):
-            logger.info('BorphSpeadClient.send: Sending a heap')
-            heap = self.get_heap()
-            #for id, val in heap.iteritems():
-            #    logger.debug('BorphSpeadClient.send: id=%d len(val)=%d' % (id, len(val[1])))
-            #    #logger.debug('BorphSpeadClient.send: id=%d val=%s' % (id, [val]))
-            self.tx.send_heap(heap)
+    def send(self):
+        logger.info('BorphSpeadClient.send: Sending a heap')
+        heap = self.get_heap()
+        #for id, val in heap.iteritems():
+        #    logger.debug('BorphSpeadClient.send: id=%d len(val)=%d' % (id, len(val[1])))
+        #    logger.debug('BorphSpeadClient.send: id=%d val=%s' % (id, [val]))
+        self.tx.send_heap(heap)
 
 A = None
 try: import aipy as A
