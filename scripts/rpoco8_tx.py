@@ -25,7 +25,7 @@ logger.info('RPOCO8-RX: Started %s with pid=%d' % (rpoco8.BOFFILE, pid))
 
 try:                                        
   bss = rpoco8.BorphSpeadServer(pid)
-  bss.add_item(name='data_timestamp', description='time stamp for data in ms', dtype=S.mkfmt(('u',64)), shape=[1])       
+  bss.add_item(name='data_timestamp', description='time stamp for data in ms', shape=[1])#dtype=S.mkfmt(('u',64)), shape=[1])       
   while True:
     logger.info('RPOCO8-RX: Listening to port %d' % (opts.port))    
     bss.listen(opts.port)                                          
