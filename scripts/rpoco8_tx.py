@@ -1,8 +1,8 @@
-#! /usr/bin/env python
+#! /usr/local/bin/env python
 import spead as S
 import optparse, sys, rpoco8
 import logging; logger = logging.getLogger('rpoco8')
-import walsh_rx
+#import walsh_rx
 
 o = optparse.OptionParser()
 o.add_option('-p','--port', dest='port', type='int',help='SPEAD port for tx/rx')
@@ -21,7 +21,7 @@ pid = int(args[0])
 logger.info('RPOCO8-RX: Started %s with pid=%d' % (rpoco8.BOFFILE, pid))
 
 
-walsh_rx.write_walsh(pid,pattern = opts.option)
+#walsh_rx.write_walsh(pid,pattern = opts.option)
 
 try:                                        
   bss = rpoco8.BorphSpeadServer(pid)
