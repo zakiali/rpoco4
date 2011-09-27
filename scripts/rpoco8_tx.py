@@ -6,8 +6,8 @@ import logging; logger = logging.getLogger('rpoco8')
 
 o = optparse.OptionParser()
 o.add_option('-p','--port', dest='port', type='int',help='SPEAD port for tx/rx')
-o.add.option('-v', '--verbose', dest='verbose', action='store_true', help='Be verbose') 
-o.add.option('-w', '--walsh', dest = 'walsh', type = 'string', default = 0, help = 'type of walsh pattern. 0=zeroes, all = 8 orth. patterns')
+o.add_option('-v', '--verbose', dest='verbose', action='store_true', help='Be verbose') 
+o.add_option('-w', '--walsh', dest = 'walsh', type = 'string', default = 0, help = 'type of walsh pattern. 0=zeroes, all = 8 orth. patterns')
 opts,args = o.parse_args(sys.argv[1:])
                                                         
 if opts.verbose:
