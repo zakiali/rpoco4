@@ -1,7 +1,7 @@
 #! /usr/local/bin/env python
 import spead as S
-import optparse, sys, rpoco8
-import logging; logger = logging.getLogger('rpoco8')
+import optparse, sys, rpoco4
+import logging; logger = logging.getLogger('rpoco4')
 #import walsh_rx
 
 o = optparse.OptionParser()
@@ -16,30 +16,30 @@ else:
     stream = logging.basicConfig(level=logging.INFO)    
 logging.getLogger('spead').setLevel(logging.WARN)
 
-#pid = rpoco8.start_bof()
-pid = int(args[0])                                                 
-logger.info('RPOCO8-RX: Started %s with pid=%d' % (rpoco8.BOFFILE, pid))
+pid = rpoco4.start_bof(boffile ='/boffiles/baopoco_2011_Oct_14_2122.bof')
+#pid = int(args[0])                                                 
+logger.info('RPOCO4-RX: Started %s with pid=%d' % (rpoco4.BOFFILE, pid))
 
 
 #walsh_rx.write_walsh(pid,pattern = opts.option)
 
 try:                                        
-  bss = rpoco8.BorphSpeadServer(pid)
+  bss = rpoco4.BorphSpeadServer(pid)
   bss.add_item(name='data_timestamp', description='time stamp for data in ms', shape=[1])#dtype=S.mkfmt(('u',64)), shape=[1])       
   while True:
-    logger.info('RPOCO8-RX: Listening to port %d' % (opts.port))    
+    logger.info('RPOCO4-RX: Listening to port %d' % (opts.port))    
     bss.listen(opts.port)                                          
-    logger.info('RPOCO8-RX: Waiting for client...')               
+    logger.info('RPOCO4-RX: Waiting for client...')               
     client = bss.get_client(opts.port)                      
     for heap in bss.iterheaps():   
-        logger.debug('RPOCO8-RX: Sending a heap')    
+        logger.debug('RPOCO8-4X: Sending a heap')    
         client.send_heap(heap)
-        logger.debug('RPOCO8-RX: Heap sent')
-    logger.info('RPOCO8-RX: Client disconnected')
+        logger.debug('RPOCO8-4X: Heap sent')
+    logger.info('RPOCO4-RX: Client disconnected')
     bss.stop()                                      
-except(OSError): logger.fatal('RPOCO8-RX: Cannot start RPOCO8. FPGA already programmed')
+except(OSError): logger.fatal('RPOCO4-4X: Cannot start RPOCO4. FPGA already programmed')
 except(KeyboardInterrupt):
-    logger.info('RPOCO8-RX: Got KeyboardInterrupt.  Stopping')
+    logger.info('RPOCO4-RX: Got KeyboardInterrupt.  Stopping')
     bss.stop()
 #finally: rpoco8.end_bof(pid)
  
