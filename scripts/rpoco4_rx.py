@@ -21,6 +21,8 @@ o.add_option('-p','--port', dest='port', type='int', help='UDP port to listen to
 o.add_option('-s' , '--shift' , dest='fftshift', type='int' , default=0xffff, help='sets the fft shift.default is to shift every stage.')
 o.add_option('-e' , '--eq' , dest='eqcoeff', type='int' , default=1000, help='sets the equalization coeffiecients.')
 o.add_option('-l' , '--acclen' , dest='acclen', type='int' , default=0x80000, help='sets the accumulation lenght = number of spectra to accumulate. Default is 2**28/512 = 1.3 seconds.')
+o.add_option('--sync', dest='sync', action='store_true', default=True,
+        help='to send sync pulse up or not. This resets the acc etc...')
 
 opts,args = o.parse_args(sys.argv[1:])   
 
@@ -47,9 +49,9 @@ ig.add_item(name='data_timestamp', id=rpoco4.TIMESTAMP_ID,fmt=S.mkfmt(('u',64)),
 #nchan=input('nchan(i)=') number of channels
 #inttime=input('inttime(d)=') integration time
 #bandpass=input('bandpass=') array of size nchan x nants
-inttime=(2**30)*5e-9
+inttime= (opts.acclen*2**9)*5e-9
 sfreq = 0.200
-sdf = -0.10/1024.
+sdf = -0.40/1024.
 fre = N.arange(8,dtype = N.integer)
 freqs = fre * 0.1      
 nchan = NCHAN
@@ -122,6 +124,8 @@ class DataRecorder(S.ItemGroup):
             ig.update(heap)
             ig['acc_num']= ig.heap_cnt
             #print ig.keys()
+            if ig.heap_cnt == 0:
+                continue
             sec = ig['data_timestamp']/1000.0
             jd = self.unix2julian(sec)
             logger.info('RPOCO8-RX.rx_thread: Got HEAP_CNT=%d' % (ig.heap_cnt))
@@ -138,9 +142,10 @@ class DataRecorder(S.ItemGroup):
                     self.uv_update(name,data,jd) 
 
             if c == 0:
-                self.filename = 'poco.%d.uv'%jd        
+                self.filename = 'poco.%f.uv'%jd
+                print 'Writing to filename %s' %self.filename
             c += 1
-            if c == 300:
+            if c == 30:
                 c = 0
                 print 'closing uv file'
                 self.close_uv(self.filename)
@@ -179,7 +184,9 @@ class DataRecorder(S.ItemGroup):
   
 #start up remote transmitter
 tx=S.Transmitter(S.TransportUDPtx(opts.ip, opts.port))
-bsc = rpoco4.BorphSpeadClient(opts.myip, tx, fft_shift = opts.fftshift, eq_coeff = opts.eqcoeff , acc_length = opts.acclen)
+#This always sets the eq's , acclen, and fftshift. Have a choice to send a sync pulse up or not. 
+#INtrinsically you have a choice to set the eq, acclen, fftshift or not.. but no functionality shown here.
+bsc = rpoco4.BorphSpeadClient(opts.myip, tx, fft_shift = opts.fftshift, eq_coeff = opts.eqcoeff , acc_length = opts.acclen, sync=opts.sync)
 
 dr = DataRecorder(sdf, sfreq, nchan, inttime, bandpass=None)
 dr.open_uv()
@@ -192,6 +199,7 @@ finally:
     tx.end()
     logger.info('RPOCO8-RX: Shutting down RX')
     rx.stop()
-    filename = 'poco.' + str((time.time()/86400.0)+2440587.5) + '.uv'
-    logger.info('RPOCO8-RX: Closing UV file. Renaming to '+ filename)
-    dr.close_uv(filename)
+    try: filenamee = dr.filename
+    except(AttributeError): filenamee = 'poco.BADFILE.uv'
+    logger.info('RPOCO8-RX: Closing UV file. Renaming to '+ filenamee)
+    dr.close_uv(filenamee)

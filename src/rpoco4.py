@@ -30,14 +30,16 @@ FPGA_RX_RESOURCES = {
     BASE_RX_ID+0: ('ctrl', S.DEFAULT_FMT),
     BASE_RX_ID+1: ('acc_len', S.DEFAULT_FMT),
     BASE_RX_ID+2: ('fft_shift', S.DEFAULT_FMT),
-    BASE_RX_ID+3: ('quant0_gain', S.DEFAULT_FMT),
-    BASE_RX_ID+4: ('quant1_gain', S.DEFAULT_FMT),
-    BASE_RX_ID+5: ('quant2_gain', S.DEFAULT_FMT),
-    BASE_RX_ID+6: ('quant3_gain', S.DEFAULT_FMT),
-    BASE_RX_ID+7: ('quant0_addr', S.DEFAULT_FMT),
-    BASE_RX_ID+8: ('quant1_addr', S.DEFAULT_FMT),
-    BASE_RX_ID+9: ('quant2_addr', S.DEFAULT_FMT),
-    BASE_RX_ID+10: ('quant3_addr',S.DEFAULT_FMT)
+    BASE_RX_ID+3: ('seed_seed_data', S.DEFAULT_FMT),
+    BASE_RX_ID+4: ('insel_insel_data', S.DEFAULT_FMT),
+    BASE_RX_ID+5: ('quant0_gain', S.DEFAULT_FMT),
+    BASE_RX_ID+5: ('quant1_gain', S.DEFAULT_FMT),
+    BASE_RX_ID+6: ('quant2_gain', S.DEFAULT_FMT),
+    BASE_RX_ID+7: ('quant3_gain', S.DEFAULT_FMT),
+    BASE_RX_ID+8: ('quant0_addr', S.DEFAULT_FMT),
+    BASE_RX_ID+9: ('quant1_addr', S.DEFAULT_FMT),
+    BASE_RX_ID+10: ('quant2_addr', S.DEFAULT_FMT),
+    BASE_RX_ID+11: ('quant3_addr',S.DEFAULT_FMT)
  # 0-16 coeff, 17 coeff_en, 20-25 coeff_addr, 30-31 ant_select
 }
 
@@ -181,23 +183,42 @@ class SimSpeadServer(BorphSpeadServer):
      
 class BorphSpeadClient(S.ItemGroup):
     def __init__(self, client_ip, tx, fpga_rx_resources=FPGA_RX_RESOURCES,
-            fft_shift=0x155, acc_length=0x8000000, eq_coeff=1500, sync_sel=1):
+            fft_shift=0x155, acc_length=0x8000000, eq_coeff=1500, seed_values = 0x11223344, noise_value = 0x2121, fft=True, eq=True, acc=True, 
+            sync=True, seed=True,noise = True):
         S.ItemGroup.__init__(self)
         self.tx = tx
         self.add_item('ip', fmt=S.STR_FMT, shape=-1, init_val=client_ip)
         for id in fpga_rx_resources:
             name, fmt = fpga_rx_resources[id]
             self.add_item(name, id=id, fmt=fmt, shape=[])
-        self.set_fft_shift(fft_shift)
-        self.send()
-        self.acc_length(acc_length)
-        self.set_eq_coeff(eq_coeff)
-        self.send()
-        self.Sync_sync_sel(sync_sel)
+         
+        if noise:
+            self.set_noise_values(noise_value)
+        if seed:
+            self.set_seed_values(seed_values)
+        if fft:    
+            self.set_fft_shift(fft_shift)
+            self.send()
+        if acc:    
+            self.acc_length(acc_length)
+            self.send()
+        if eq:    
+            self.set_eq_coeff(eq_coeff)
+            self.send()
+        if sync:    
+            time.sleep(.2)
+            self.Sync_sync_sel(0x20000)
+            time.sleep(.2)
+            self.Sync_sync_sel(0x40000)
+            time.sleep(.2)
+            self.Sync_sync_sel(0x00000)
+            time.sleep(.2)
+            self.Sync_sync_sel(0x40000)
+            time.sleep(.2)
     def set_fft_shift(self, fft_shift):
         logger.info('BorphSpeadClient.set_fft_shift: fft_shift=%x' % (fft_shift))
         self['fft_shift'] = fft_shift 
-    def acc_length(self, acc_length):
+    def set_acc_length(self, acc_length):
         logger.info('BorphSpeadClient.acc_length: acc_length=%x' % (acc_length))
         self['acc_len'] = acc_length
     def set_eq_coeff(self, eq_coeff):
@@ -214,15 +235,19 @@ class BorphSpeadClient(S.ItemGroup):
                 self['quant%i_addr'%ant] = chan
                 self.send()
     
-    def Sync_sync_sel(self, sync_sel):
+    def Sync_sync_sel(self, sync_val):
         logger.info('BorphSpeadClient.set_sync:Sending sync trigger')
-        self['ctrl'] = 1<<17
+        self['ctrl'] = sync_val
         self.send()
-        self['ctrl'] = 0
+
+    def set_seed_values(self, seed_values):
+        logger.info('BorphSpeadClient.seed_values: Setting digital noise seed values to %d'%seed_values)
+        self['seed_seed_values'] = seed_values
         self.send()
-        self['ctrl'] = 1<<18
-        self.send()
-        self['ctrl'] = 0
+    
+    def set_noise_values(self, noise_value):
+        logger.info('BorphSpeadClient.noise_values: Setting digital noise values to %d'%noise_value)
+        self['insel_insel_values'] = noise_value
         self.send()
 
     def send(self):
