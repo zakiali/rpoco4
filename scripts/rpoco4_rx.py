@@ -136,7 +136,9 @@ class DataRecorder(S.ItemGroup):
                     data.real = N.dstack((ig[name+'_er'],ig[name+'_or'])).flatten()
                     data.imag = N.dstack((ig[name+'_ei'],ig[name+'_oi'])).flatten()
                     self.uv_update(name,data,jd) 
-            if c = 0 : self.filename = 'poco.%d.uv'%jd        
+
+            if c == 0:
+                self.filename = 'poco.%d.uv'%jd        
             c += 1
             if c == 300:
                 c = 0
@@ -173,7 +175,7 @@ class DataRecorder(S.ItemGroup):
         '''Close current UV file and rename to filename'''
         logger.info('RPOCO8-RX.rx_thread: Closing UV file and renaming to %s' %filename)
         del(self.uv)
-        os.rename('poco.uv.tmp', filename))
+        os.rename('poco.uv.tmp', filename)
   
 #start up remote transmitter
 tx=S.Transmitter(S.TransportUDPtx(opts.ip, opts.port))
