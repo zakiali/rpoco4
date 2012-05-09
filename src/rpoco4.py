@@ -1,6 +1,6 @@
 import spead as S, numpy as N
 import os, threading, time
-import logging; logger = logging.getLogger('rpoco8')
+import logging; logger = logging.getLogger('rpoco4')
 
 __VERSION__ = '0.0.3'
 BOFFILE = '/boffiles/rpoco8_2048ch_v007.bof'
@@ -218,11 +218,11 @@ class BorphSpeadClient(S.ItemGroup):
         logger.info('BorphSpeadClient.set_sync:Sending sync trigger')
         self['ctrl'] = 1<<17
         self.send()
-        self['ctrl'] = 1<<18
-        self.send()
         self['ctrl'] = 0
         self.send()
         self['ctrl'] = 1<<18
+        self.send()
+        self['ctrl'] = 0
         self.send()
 
     def send(self):
