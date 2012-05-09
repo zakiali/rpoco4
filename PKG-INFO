@@ -1,10 +1,10 @@
 Metadata-Version: 1.0
-Name: rpoco8
+Name: rpoco4
 Version: 0.0.1
-Summary: RPOCO8: Roach-based Pocket Correlator (8-input)
+Summary: RPOCO4: Roach-based Pocket Correlator (4-input)
 Home-page: UNKNOWN
-Author: Aaron Parsons
-Author-email: aparsons@astron.berkeley.edu
+Author: Zaki Ali
+Author-email: zakiali88@gmail.com
 License: GPL
-Description: RPOCO8: Roach-based Pocket Correlator (8-input)
+Description: RPOCO4: Roach-based Pocket Correlator (4-input)
 Platform: UNKNOWN

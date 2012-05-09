@@ -1,4 +1,4 @@
-"""RPOCO8: Roach-based Pocket Correlator (8-input)"""
+"""RPOCO4: Roach-based Pocket Correlator (4-input)"""
 from distutils.core import setup
 import os, glob
 
@@ -12,15 +12,15 @@ def globdir(dir, files):
 if os.path.exists('/boffiles'): data_files = [('/boffiles',glob.glob('data/*.bof'))]
 else: data_files = []
 
-setup(name = 'rpoco8',
+setup(name = 'rpoco4',
     version = __version__,
     description = __doc__,
     long_description = __doc__,
     license = 'GPL',
-    author = 'Aaron Parsons',
-    author_email = 'aparsons@astron.berkeley.edu',
+    author = 'Zaki Ali'
+    author_email = 'zakiali88@gmail.com'
     package_dir = {'':'src'},
-    py_modules = ['rpoco8'],
+    py_modules = ['rpoco4'],
     scripts = glob.glob('scripts/*'),
     data_files = data_files,
 )
