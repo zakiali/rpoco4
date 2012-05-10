@@ -190,7 +190,6 @@ class BorphSpeadClient(S.ItemGroup):
         self.add_item('ip', fmt=S.STR_FMT, shape=-1, init_val=client_ip)
         for id in fpga_rx_resources:
             name, fmt = fpga_rx_resources[id]
-            print name
             self.add_item(name, id=id, fmt=fmt, shape=[])
          
         if noise:

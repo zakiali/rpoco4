@@ -21,8 +21,21 @@ o.add_option('-p','--port', dest='port', type='int', help='UDP port to listen to
 o.add_option('-s' , '--shift' , dest='fftshift', type='int' , default=0xffff, help='sets the fft shift.default is to shift every stage.')
 o.add_option('-e' , '--eq' , dest='eqcoeff', type='int' , default=1000, help='sets the equalization coeffiecients.')
 o.add_option('-l' , '--acclen' , dest='acclen', type='int' , default=0x80000, help='sets the accumulation lenght = number of spectra to accumulate. Default is 2**28/512 = 1.3 seconds.')
+o.add_option('-n', dest='noiseval', type='int', default = 0x2121, help='Value to write into input selectors. 0=adc, 1= noise1, 2 = noise2, 3 = digital zero. Note that for noise1 and noise2 to be different (independent) all seed values must be different (default))')
+o.add_option('-f', dest='seedval', type='int', default = 0x11223344, help='seed values to write for digital noise generators.')
+
 o.add_option('--sync', dest='sync', action='store_false', default=True,
-        help='to send sync pulse up or not. This resets the acc etc...')
+        help='to send sync pulse up or not. ')
+o.add_option('--fft', dest='fft', action='store_false', default=True,
+        help='to set fft shift or not.')
+o.add_option('--acc', dest='acc', action='store_false', default=True,
+        help='to set acc length or not.')
+o.add_option('--seed', dest='seed', action='store_false', default=True,
+        help='to set seed values for digital noise or not.')
+o.add_option('--noise', dest='noise', action='store_false', default=True,
+        help='to set input selectors or not.')
+o.add_option('--gain', dest='gain', action='store_false', default=True,
+        help='to set gain registers or not.')
 
 opts,args = o.parse_args(sys.argv[1:])   
 
@@ -192,7 +205,8 @@ class DataRecorder(S.ItemGroup):
 tx=S.Transmitter(S.TransportUDPtx(opts.ip, opts.port))
 #This always sets the eq's , acclen, and fftshift. Have a choice to send a sync pulse up or not. 
 #INtrinsically you have a choice to set the eq, acclen, fftshift or not.. but no functionality shown here.
-bsc = rpoco4.BorphSpeadClient(opts.myip, tx, fft_shift = opts.fftshift, eq_coeff = opts.eqcoeff , acc_length = opts.acclen, sync=opts.sync)
+bsc = rpoco4.BorphSpeadClient(opts.myip, tx, fft_shift = opts.fftshift, eq_coeff = opts.eqcoeff , acc_length = opts.acclen, seed=opts.seed, noise=opts.noise,
+                            sync=opts.sync, seed_values=opts.seedval, noise_value=opts.noiseval, acc=opts.acc, eq=opts.gain, fft=opts.fft)
 
 dr = DataRecorder(sdf, sfreq, nchan, inttime, bandpass=None)
 dr.open_uv()
