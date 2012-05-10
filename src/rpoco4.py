@@ -33,13 +33,13 @@ FPGA_RX_RESOURCES = {
     BASE_RX_ID+3: ('seed_seed_data', S.DEFAULT_FMT),
     BASE_RX_ID+4: ('insel_insel_data', S.DEFAULT_FMT),
     BASE_RX_ID+5: ('quant0_gain', S.DEFAULT_FMT),
-    BASE_RX_ID+5: ('quant1_gain', S.DEFAULT_FMT),
-    BASE_RX_ID+6: ('quant2_gain', S.DEFAULT_FMT),
-    BASE_RX_ID+7: ('quant3_gain', S.DEFAULT_FMT),
-    BASE_RX_ID+8: ('quant0_addr', S.DEFAULT_FMT),
-    BASE_RX_ID+9: ('quant1_addr', S.DEFAULT_FMT),
-    BASE_RX_ID+10: ('quant2_addr', S.DEFAULT_FMT),
-    BASE_RX_ID+11: ('quant3_addr',S.DEFAULT_FMT)
+    BASE_RX_ID+6: ('quant1_gain', S.DEFAULT_FMT),
+    BASE_RX_ID+7: ('quant2_gain', S.DEFAULT_FMT),
+    BASE_RX_ID+8: ('quant3_gain', S.DEFAULT_FMT),
+    BASE_RX_ID+9: ('quant0_addr', S.DEFAULT_FMT),
+    BASE_RX_ID+10: ('quant1_addr', S.DEFAULT_FMT),
+    BASE_RX_ID+11: ('quant2_addr', S.DEFAULT_FMT),
+    BASE_RX_ID+12: ('quant3_addr',S.DEFAULT_FMT)
  # 0-16 coeff, 17 coeff_en, 20-25 coeff_addr, 30-31 ant_select
 }
 
@@ -190,6 +190,7 @@ class BorphSpeadClient(S.ItemGroup):
         self.add_item('ip', fmt=S.STR_FMT, shape=-1, init_val=client_ip)
         for id in fpga_rx_resources:
             name, fmt = fpga_rx_resources[id]
+            print name
             self.add_item(name, id=id, fmt=fmt, shape=[])
          
         if noise:
@@ -200,7 +201,7 @@ class BorphSpeadClient(S.ItemGroup):
             self.set_fft_shift(fft_shift)
             self.send()
         if acc:    
-            self.acc_length(acc_length)
+            self.set_acc_length(acc_length)
             self.send()
         if eq:    
             self.set_eq_coeff(eq_coeff)
@@ -242,12 +243,12 @@ class BorphSpeadClient(S.ItemGroup):
 
     def set_seed_values(self, seed_values):
         logger.info('BorphSpeadClient.seed_values: Setting digital noise seed values to %d'%seed_values)
-        self['seed_seed_values'] = seed_values
+        self['seed_seed_data'] = seed_values
         self.send()
     
     def set_noise_values(self, noise_value):
         logger.info('BorphSpeadClient.noise_values: Setting digital noise values to %d'%noise_value)
-        self['insel_insel_values'] = noise_value
+        self['insel_insel_data'] = noise_value
         self.send()
 
     def send(self):

@@ -16,9 +16,14 @@ else:
     stream = logging.basicConfig(level=logging.INFO)    
 logging.getLogger('spead').setLevel(logging.WARN)
 
-pid = rpoco4.start_bof(boffile ='/boffiles/baopoco_2011_Oct_14_2122.bof')
+p = os.popen('pgrep -f baopoco_2011_Oct_14_2122.bof')
+s = p.readline()
+if s != '':
+    pid = int(s.strip())
+else:    
+    pid = rpoco4.start_bof(boffile ='/boffiles/baopoco_2011_Oct_14_2122.bof')
 #pid = int(args[0])                                                 
-logger.info('RPOCO4-RX: Started %s with pid=%d' % (rpoco4.BOFFILE, pid))
+logger.info('RPOCO4-RX: Started %s with pid=%d' % ('/boffiles/baopoco_2011_Oct_14_2122.bof', pid))
 
 
 #walsh_rx.write_walsh(pid,pattern = opts.option)
