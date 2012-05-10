@@ -1,6 +1,6 @@
 #! /usr/local/bin/env python
 import spead as S
-import optparse, sys, rpoco4
+import optparse, sys, rpoco4, os
 import logging; logger = logging.getLogger('rpoco4')
 #import walsh_rx
 
