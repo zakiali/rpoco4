@@ -21,7 +21,7 @@ o.add_option('-p','--port', dest='port', type='int', help='UDP port to listen to
 o.add_option('-s' , '--shift' , dest='fftshift', type='int' , default=0xffff, help='sets the fft shift.default is to shift every stage.')
 o.add_option('-e' , '--eq' , dest='eqcoeff', type='int' , default=1000, help='sets the equalization coeffiecients.')
 o.add_option('-l' , '--acclen' , dest='acclen', type='int' , default=0x80000, help='sets the accumulation lenght = number of spectra to accumulate. Default is 2**28/512 = 1.3 seconds.')
-o.add_option('--sync', dest='sync', action='store_true', default=True,
+o.add_option('--sync', dest='sync', action='store_false', default=True,
         help='to send sync pulse up or not. This resets the acc etc...')
 
 opts,args = o.parse_args(sys.argv[1:])   
@@ -56,6 +56,7 @@ fre = N.arange(8,dtype = N.integer)
 freqs = fre * 0.1      
 nchan = NCHAN
 
+syncup_pulse = opts.sync
 c = 0
 
 class DataRecorder(S.ItemGroup):
@@ -119,11 +120,16 @@ class DataRecorder(S.ItemGroup):
         '''Starts up reciever thread and parses through the data.
            Then writes the uv files '''
         global c
+        global syncup_pulse
         logger.info('RPOCO8-RX.rx_thread: Starting receiver thread')
         for heap in S.iterheaps(rx): 
             ig.update(heap)
             ig['acc_num']= ig.heap_cnt
             #print ig.keys()
+            if syncup_pulse:
+                if ig.heap_cnt > 0: continue
+                elif ig.heap_cnt == 0:
+                    syncup_pulse = False
             if ig.heap_cnt == 0:
                 continue
             sec = ig['data_timestamp']/1000.0
@@ -195,8 +201,8 @@ try: dr.write_thread()
 except(KeyboardInterrupt):
     logger.info('RPOCO8-RX: Got KeyboardInterrupt, shutting down')
 finally:    
-    logger.info('RPOCO8-RX: Shutting down TX')
-    tx.end()
+    #logger.info('RPOCO8-RX: Shutting down TX')
+    #tx.end()
     logger.info('RPOCO8-RX: Shutting down RX')
     rx.stop()
     try: filenamee = dr.filename
