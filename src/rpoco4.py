@@ -234,6 +234,7 @@ class BorphSpeadClient(S.ItemGroup):
             for ant in range(NANT):
                 self['quant%i_addr'%ant] = chan
                 self.send()
+                time.sleep(0.01)
     
     def Sync_sync_sel(self, sync_val):
         logger.info('BorphSpeadClient.set_sync:Sending sync trigger')
