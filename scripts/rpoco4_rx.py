@@ -154,11 +154,11 @@ class DataRecorder(S.ItemGroup):
                 data = N.zeros(shape = 1024, dtype = N.complex64)
                 if name[0] == name[1]:
                     data.real = N.dstack((ig[name+'_er'],ig[name+'_or'])).flatten()
-                    self.uv_update(name,data,jd)
+                    self.uv_update(name,data[::-1],jd)
                 else:
                     data.real = N.dstack((ig[name+'_er'],ig[name+'_or'])).flatten()
                     data.imag = N.dstack((ig[name+'_ei'],ig[name+'_oi'])).flatten()
-                    self.uv_update(name,data,jd) 
+                    self.uv_update(name,data[::-1],jd)
 
             if c == 0:
                 self.filename = 'poco.%f.uv'%jd
